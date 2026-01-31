@@ -7,7 +7,7 @@ on:
       - dev
 
 env:
-  EC2_PROJECT_PATH: $HOME/deployment
+  EC2_PROJECT_PATH: deployment
 
 jobs:
   build-and-push-backend:
@@ -81,7 +81,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: DOCKERHUB_USERNAME,DOCKERHUB_TOKEN,EC2_PROJECT_PATH
           script: |
-            cd $EC2_PROJECT_PATH || exit 1
+            cd $HOME/$EC2_PROJECT_PATH || exit 1
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
             docker compose down
             docker compose pull
