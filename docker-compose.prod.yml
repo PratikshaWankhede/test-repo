@@ -1,0 +1,90 @@
+services:
+  api-gateway:
+    image: ${DOCKERHUB_USERNAME}/api-gateway:latest
+    container_name: fractal-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET}
+      - USER_SERVICE_URL=http://user-service:3001
+      - WORKSHEET_SERVICE_URL=http://worksheet-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+      - API_GATEWAY_URL=http://localhost:3000
+    depends_on:
+      - user-service
+      - worksheet-service
+      - payment-service
+      - notification-service
+    networks:
+      - fractal-network
+    restart: unless-stopped
+
+  user-service:
+    image: ${DOCKERHUB_USERNAME}/user-service:latest
+    container_name: fractal-user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URL=mongodb://mongodb:27017/fractal
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - fractal-network
+    restart: unless-stopped
+
+  worksheet-service:
+    image: ${DOCKERHUB_USERNAME}/worksheet-service:latest
+    container_name: fractal-worksheet-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MONGODB_URL=mongodb://mongodb:27017/fractal
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - mongodb
+    networks:
+      - fractal-network
+    restart: unless-stopped
+
+  payment-service:
+    image: ${DOCKERHUB_USERNAME}/payment-service:latest
+    container_name: fractal-payment-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - MONGODB_URL=mongodb://mongodb:27017/fractal
+    depends_on:
+      - mongodb
+    networks:
+      - fractal-network
+    restart: unless-stopped
+
+  notification-service:
+    image: ${DOCKERHUB_USERNAME}/notification-service:latest
+    container_name: fractal-notification-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+    networks:
+      - fractal-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+  redis_data:
+
+networks:
+  fractal-network:
+    driver: bridge

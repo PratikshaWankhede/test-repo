@@ -1,0 +1,99 @@
+services:
+  api-gateway:
+    build:
+      context: ./backend/api-gateway
+      dockerfile: Dockerfile
+    container_name: fractal-api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - JWT_SECRET=${JWT_SECRET:-secret}
+      - USER_SERVICE_URL=http://user-service:3001
+      - WORKSHEET_SERVICE_URL=http://worksheet-service:3002
+      - PAYMENT_SERVICE_URL=http://payment-service:3003
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3004
+      - API_GATEWAY_URL=http://localhost:3000
+    depends_on:
+      - user-service
+      - worksheet-service
+      - payment-service
+      - notification-service
+    networks:
+      - fractal-network
+
+  user-service:
+    build:
+      context: ./backend/user-service
+      dockerfile: Dockerfile
+    container_name: fractal-user-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URL=mongodb+srv://yogesh3332:tCGdpj1IHnID13J4@cluster0.pwjc7nq.mongodb.net/microservice?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=${JWT_SECRET:-secret}
+    networks:
+      - fractal-network
+
+  worksheet-service:
+    build:
+      context: ./backend/worksheet-service
+      dockerfile: Dockerfile
+    container_name: fractal-worksheet-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - MONGODB_URL=mongodb+srv://yogesh3332:tCGdpj1IHnID13J4@cluster0.pwjc7nq.mongodb.net/microservice?retryWrites=true&w=majority&appName=Cluster0
+      - JWT_SECRET=${JWT_SECRET:-secret}
+    networks:
+      - fractal-network
+
+  payment-service:
+    build:
+      context: ./backend/payment-service
+      dockerfile: Dockerfile
+    container_name: fractal-payment-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=production
+      - PORT=3003
+      - MONGODB_URL=mongodb+srv://yogesh3332:tCGdpj1IHnID13J4@cluster0.pwjc7nq.mongodb.net/microservice?retryWrites=true&w=majority&appName=Cluster0
+    networks:
+      - fractal-network
+
+  notification-service:
+    build:
+      context: ./backend/notification-service
+      dockerfile: Dockerfile
+    container_name: fractal-notification-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_ENV=production
+      - PORT=3004
+    networks:
+      - fractal-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fractal-frontend
+    ports:
+      - "4005:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:3000
+    depends_on:
+      - api-gateway
+    networks:
+      - fractal-network
+
+networks:
+  fractal-network:
+    driver: bridge
