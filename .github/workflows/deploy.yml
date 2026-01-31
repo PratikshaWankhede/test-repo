@@ -7,7 +7,7 @@ on:
       - dev
 
 env:
-  EC2_PROJECT_PATH: ~/deployment
+  EC2_PROJECT_PATH: $HOME/deployment
 
 jobs:
   build-and-push-backend:
@@ -83,7 +83,6 @@ jobs:
           script: |
             cd $EC2_PROJECT_PATH || exit 1
             echo "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-            df -h
             docker compose down
             docker compose pull
             docker compose up -d
